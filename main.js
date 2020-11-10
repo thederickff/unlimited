@@ -8,7 +8,7 @@ const createWindow = () => {
   });
 
   win.maximize();
-  win.loadFile('index.html');
+  win.loadFile('app/app.window.html');
   win.webContents.openDevTools();
 }
 
