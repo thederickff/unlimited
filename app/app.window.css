@@ -44,7 +44,16 @@ ion-card-content {
   color: #073f88;
 }
 
-ul li {
+.root-list {
+  padding-left: 0;
+}
+
+.root-list li {
+  margin-left: 0;
+  border-left: 2px dotted #07880d;
+}
+
+.task-childs ul li {
   display: flex;
   flex-direction: column;
   border-left: 2px dotted #07880d;
@@ -54,12 +63,42 @@ ul li {
   margin-bottom: 0.5em;
 }
 
-.root-list {
-  padding-left: 0;
+ul li.color {
+  border-left: none;
+  border-radius: 10px;
 }
 
-.root-list li {
-  margin-left: 0;
+
+ul li.color button {
+  color: white;
+  border: 1px solid white;
+}
+
+ul li.color button.expandable {
+  color: black;
+  border: 1px solid black;
+}
+
+ul li.color ul li {
+  border-color: white;
+}
+
+ul li.vermelho {
+  background-color: #881007;
+}
+
+ul li.verde {
+  background-color: #07880d;
+}
+
+ul li.azul {
+  background-color: #073f88;
+}
+
+ul li {
+  margin: 0.25em;
+  padding: 0.5em;
+  width: fit-content;
 }
 
 .task-header {
@@ -103,6 +142,6 @@ ul li {
 button {
   background: none;
   outline: none;
-  border: 1px solid black;
   border-radius: 3px;
+  border: 1px solid black;
 }

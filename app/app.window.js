@@ -98,6 +98,10 @@ const presentTaskAlert = (rootTasks, task, path) => {
       placeholder: 'Descrição (Opcional)',
       type: 'text',
       value: task && task.comment ? task.comment : undefined
+    },
+    {
+      placeholder: 'Cor: azul, verde, vermelho',
+      value: task && task.color ? task.color : undefined
     }
   ];
   
@@ -110,6 +114,7 @@ const presentTaskAlert = (rootTasks, task, path) => {
       handler: inputs => {
         const name = inputs[0];
         const comment = inputs[1];
+        const color = inputs[2];
         
         if (name.length <= 0) {
           return;
@@ -118,6 +123,7 @@ const presentTaskAlert = (rootTasks, task, path) => {
         if (task) {
           task.name = name;
           task.comment = comment;
+          task.color = color;
           taskService.saveTasks(rootTasks);
         } else {
           pushNewTask(rootTasks, { name, comment }, path);
@@ -206,6 +212,7 @@ genelTasks = (tasks, level, rootTasks) => {
 
 genelTask = (rootTasks, task, path) => {
   const element = document.createElement('li');
+  element.className = task.color ? `color ${task.color}` : ``;
   
   const divHeader = NewElement('div', {
     className: 'task-header'
