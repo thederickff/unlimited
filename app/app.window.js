@@ -172,7 +172,7 @@ const presentTaskAlert = (rootTasks, task, path) => {
       value: task && task.comment ? task.comment : undefined
     },
     {
-      placeholder: 'Cor: azul, verde, vermelho',
+      placeholder: 'Cor: azul, verde, vermelho...',
       value: task && task.color ? colorToText(task.color) : undefined
     }
   ];
