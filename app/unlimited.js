@@ -71,8 +71,8 @@ exports.taskService = {
   fetchAll: () => {
     return Read('tasks');
   },
-  save: task => {
-    return SaveEntity('tasks', task);
+  saveTasks: tasks => {
+    return Write('tasks', tasks);
   },
   delete: taskId => {
     return DeleteEntity('tasks', taskId);

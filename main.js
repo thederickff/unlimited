@@ -2,6 +2,7 @@ const { app, BrowserWindow } = require('electron');
 
 const createWindow = () => {
   const win = new BrowserWindow({
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true
     }
