@@ -69,10 +69,23 @@ const DeleteEntity = (key, entityId) => {
   
 exports.taskService = {
   fetchAll: () => {
-    return Read('tasks');
+    const tasks = Read('tasks');
+    return tasks ? tasks : [];
   },
   saveTasks: tasks => {
-    return Write('tasks', tasks);
+    // clear null tasks
+    const clearNull = items => {
+      return items.filter(item => {
+        if (item && item.childs) {
+          item.childs = clearNull(item.childs);
+        }
+
+        return item;
+      });
+    };
+
+
+    return Write('tasks', clearNull(tasks));
   },
   delete: taskId => {
     return DeleteEntity('tasks', taskId);

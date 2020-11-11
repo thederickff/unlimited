@@ -1,16 +1,16 @@
-* {
+/* * {
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
-}
-
+} */
+/* 
 body {
-  background: url(images/1051-2048x2048.jpg) center;
+  background: center;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   overflow-y: hidden;
-}
+} */
 
 ul {
   list-style: none;
@@ -24,7 +24,7 @@ ul {
   padding: 0.25em;
 }
 
-.container {
+/* .container {
   background: #ececec;
   border: 4px solid #073f88;
   padding-top: 0.25em;
@@ -35,8 +35,30 @@ ul {
   max-height: 90vh;
   overflow-x: scroll;
   overflow-y: scroll;
+} */
+
+ion-content {
+  --background: url(images/1051-2048x2048.jpg) center;
+  height: 100%;
 }
  
+.container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+ion-card {
+  width: 100%;
+  max-width: 50em;
+  overflow-x: scroll;
+  overflow-y: scroll;
+}
+
+ion-card-content {
+  width: fit-content;
+}
+
 .title {
   display: flex;
   justify-content: center;
@@ -46,7 +68,7 @@ ul {
   color: #073f88;
 }
 
-#tasks ul li {
+ul li {
   display: flex;
   flex-direction: column;
   border-left: 2px dotted #07880d;
@@ -54,6 +76,14 @@ ul {
   margin-right: 0.5em;
   margin-left: 2.6em;
   margin-bottom: 0.5em;
+}
+
+.root-list {
+  padding-left: 0;
+}
+
+.root-list li {
+  margin-left: 0;
 }
 
 .task-header {
@@ -72,12 +102,16 @@ ul {
   cursor: pointer;
 }
 
-.task-title label.checked {
+.task-title input {
+  margin-right: 0.25em;
+}
+
+.task-title h2.checked {
   text-decoration: line-through;
 }
 
-.task-title input {
-  margin-right: 0.25em;
+.task-title h2 {
+  color: #141414;
 }
 
 .task-subtitle p {
@@ -90,6 +124,9 @@ ul {
   text-decoration: line-through;
 }
 
-.expandable {
-  
+button {
+  background: none;
+  outline: none;
+  border: 1px solid black;
+  border-radius: 3px;
 }

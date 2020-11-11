@@ -4,16 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unlimited</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"/>
   <link rel="stylesheet" href="app.window.css">
 </head>
 <body>
-  <div class="container">
-    <div class="title">
-      <h2>My List</h2>
-    </div>
-
-    <div id="tasks"></div>
-  </div>
+  <ion-app>
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-title>Unlimited</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <div class="container">
+        <ion-card>
+          <ion-card-content>
+            <ul class="root-list">
+              <li>
+                <div class="task-header">
+                  <div class="task-title">
+                    <div class="p-1">
+                      <h2 class="root-title">Minha Lista</h2>
+                    </div>
+                  </div>
+                </div>
+                <div class="p-1">
+                  <button class="new-item">+ Item</button>
+                </div>
+                <div id="tasks"></div>
+              </li>
+            </ul>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </ion-content>
+  </ion-app>
 
   <script src="app.window.js"></script>
 </body>
