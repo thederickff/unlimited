@@ -119,6 +119,44 @@ const presentTitleAlert = () => {
   return alert.present();
 };
 
+const textToColor = text => {
+  switch (text.toLocaleLowerCase()) {
+    case 'vermelho':
+      return 'red';
+    case 'verde':
+      return 'green';
+    case 'azul':
+      return 'blue';
+    case 'rosa':
+      return 'pink';
+    case 'laranja':
+      return 'orange';
+    case 'amarelo':
+      return 'yellow';
+  }
+
+  return text;
+};
+
+const colorToText = color => {
+  switch (color) {
+    case 'red':
+      return 'Vermelho';
+    case 'green':
+      return 'Verde';
+    case 'blue':
+      return 'Azul';
+    case 'pink':
+      return 'Rosa';
+    case 'orange':
+      return 'Laranja';
+    case 'yellow':
+      return 'Amarelo';
+  }
+
+  return color;
+}
+
 const presentTaskAlert = (rootTasks, task, path) => {
   const alert = document.createElement('ion-alert');
   alert.header = task ? 'Editar Item' : 'Novo Item';
@@ -135,7 +173,7 @@ const presentTaskAlert = (rootTasks, task, path) => {
     },
     {
       placeholder: 'Cor: azul, verde, vermelho',
-      value: task && task.color ? task.color : undefined
+      value: task && task.color ? colorToText(task.color) : undefined
     }
   ];
   
@@ -154,26 +192,7 @@ const presentTaskAlert = (rootTasks, task, path) => {
           return;
         }
 
-        switch (color.toLocaleLowerCase()) {
-          case 'vermelho':
-            color = 'red';
-            break;
-          case 'verde':
-            color = 'green';
-            break;
-          case 'azul':
-            color = 'blue';
-            break;
-          case 'rosa':
-            color = 'pink';
-            break;
-          case 'laranja':
-            color = 'orange';
-            break;
-          case 'amarelo':
-            color = 'yellow';
-            break;
-        }
+        color = textToColor(color);
         
         if (task) {
           task.name = name;

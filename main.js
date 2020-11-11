@@ -10,7 +10,7 @@ const createWindow = () => {
 
   win.maximize();
   win.loadFile('app/app.window.html');
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
