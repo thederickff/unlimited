@@ -83,16 +83,23 @@ ul li.color ul li {
   border-color: white;
 }
 
-ul li.vermelho {
+ul li.red {
   background-color: #881007;
 }
-
-ul li.verde {
+ul li.green {
   background-color: #07880d;
 }
-
-ul li.azul {
+ul li.blue {
   background-color: #073f88;
+}
+ul li.pink {
+  background-color: #d10d96;
+}
+ul li.orange {
+  background-color: #d15d0f;
+}
+ul li.yellow {
+  background-color: #bcbe15;
 }
 
 ul li {

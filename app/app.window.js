@@ -56,6 +56,40 @@ const deleteTask = (rootTasks, path) => {
   taskService.saveTasks(rootTasks);
 };
 
+const updateCheckedFromTasks = (tasks, checked) => {
+  if (!tasks) {
+    return;
+  }
+
+  tasks.forEach(task => {
+    if (task.childs) {
+      updateCheckedFromTasks(task.childs, checked);
+    }
+
+    task.checked = checked;
+  });
+}
+
+const checkParentChecked = (rootTasks, path) => {
+  const indexes = path.split('.');
+  indexes.pop();
+
+  let task, currTasks;
+  indexes.forEach(index => {
+    if (task) {
+      currTasks = task.childs;
+    } else {
+      currTasks = rootTasks;
+    }
+
+    task = currTasks[index];
+  });
+
+  if (task && task.childs) {
+    task.checked = task.childs.filter(child => child.checked).length === task.childs.length;
+  }
+};
+
 const presentTitleAlert = () => {
   const alert = document.createElement('ion-alert');
   alert.header = 'Editar Titulo';
@@ -114,10 +148,31 @@ const presentTaskAlert = (rootTasks, task, path) => {
       handler: inputs => {
         const name = inputs[0];
         const comment = inputs[1];
-        const color = inputs[2];
+        let color = inputs[2];
         
         if (name.length <= 0) {
           return;
+        }
+
+        switch (color.toLocaleLowerCase()) {
+          case 'vermelho':
+            color = 'red';
+            break;
+          case 'verde':
+            color = 'green';
+            break;
+          case 'azul':
+            color = 'blue';
+            break;
+          case 'rosa':
+            color = 'pink';
+            break;
+          case 'laranja':
+            color = 'orange';
+            break;
+          case 'amarelo':
+            color = 'yellow';
+            break;
         }
         
         if (task) {
@@ -126,7 +181,7 @@ const presentTaskAlert = (rootTasks, task, path) => {
           task.color = color;
           taskService.saveTasks(rootTasks);
         } else {
-          pushNewTask(rootTasks, { name, comment }, path);
+          pushNewTask(rootTasks, { name, comment, color }, path);
         }
         
         render();
@@ -238,6 +293,10 @@ genelTask = (rootTasks, task, path) => {
 
   inputChecked.children[0].addEventListener('click', () => {
     task.checked = !task.checked;
+
+    updateCheckedFromTasks(task.childs, task.checked);
+    checkParentChecked(rootTasks, path);
+
     taskService.saveTasks(rootTasks);
     render();
   });
@@ -266,6 +325,12 @@ genelTask = (rootTasks, task, path) => {
   });
 
   divTitle.appendChild(buttonExpand);
+
+  if (task.childs) {
+    divTitle.appendChild(NewP1Element('div', {
+      innerHTML: `(${task.childs.filter(task => task.checked).length}/${task.childs.length})`
+    }));
+  }
 
   divHeader.appendChild(divTitle);
 
