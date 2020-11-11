@@ -1,47 +1,5 @@
 const { taskService } = require('./unlimited');
 
-console.log(localStorage.getItem('tasks'));
-// localStorage.setItem('tasks', JSON.stringify([
-//   {
-//     name: 'Order',
-//     comment: 'Sort them all before adjusting.',
-//     childs: [
-//       {
-//         name: 'Create Order',
-//         done: true
-//       },
-//       {
-//         name: 'Validate',
-//         comment: 'Not All of them works'
-//       },
-//       {
-//         name: 'Calculate'
-//       }
-//     ]
-//   },
-//   {
-//     name: 'Separation'
-//   },
-//   {
-//     name: 'Delivery',
-//     childs: [
-//       {
-//         name: 'Pass A',
-//         childs: [
-//           {
-//             name: 'Pass AA',
-//             comment: 'Make sure it works...',
-//             done: true
-//           }
-//         ]
-//       },
-//       {
-//         name: 'Pass B'
-//       }
-//     ]
-//   }
-// ]));
-
 const pushNewTask = (rootTasks, newTask, path) => {
 
   if (path) {
