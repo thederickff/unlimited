@@ -4,7 +4,8 @@ const createWindow = () => {
   const win = new BrowserWindow({
     autoHideMenuBar: true,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      enableRemoteModule: true
     }
   });
 

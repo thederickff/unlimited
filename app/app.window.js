@@ -90,6 +90,23 @@ const checkParentChecked = (rootTasks, path) => {
   }
 };
 
+const presentMessageAlert = (title, message) => {
+  if (title && message) {
+    const alert = document.createElement('ion-alert');
+    alert.header = title;
+    alert.message = message;
+    alert.buttons = [
+      {
+        text: 'Ok'
+      }
+    ];
+
+    document.body.appendChild(alert);
+
+    alert.present();
+  }
+};
+
 const presentTitleAlert = () => {
   const alert = document.createElement('ion-alert');
   alert.header = 'Editar Titulo';
@@ -222,6 +239,15 @@ const presentOptionsActionSheet = (rootTasks, task, path) => {
 
   actionSheet.buttons = [
     {
+      icon: 'cloud-download',
+      text: 'Exportar Item',
+      handler: () => {
+        if (taskService.exportTask(task)) {
+          presentMessageAlert('Exportar Item', 'Item exportado com sucesso.');
+        }
+      }
+    },
+    {
       icon: 'pencil',
       text: 'Editar Item',
       handler: () => {
@@ -245,9 +271,73 @@ const presentOptionsActionSheet = (rootTasks, task, path) => {
   return actionSheet.present();
 }
 
+const presentNewItemActionSheet = (rootTasks, task, path) => {
+  const actionSheet = document.createElement('ion-action-sheet');
+  actionSheet.header = path ? 'Novo Subitem' : 'Novo Item';
+
+  actionSheet.buttons = [
+    {
+      icon: 'add',
+      text: 'Novo',
+      handler: () => {
+        presentTaskAlert(rootTasks, null, path);
+      }
+    },
+    {
+      icon: 'cloud-upload',
+      text: 'Importar',
+      handler: () => {
+        const importedItem = taskService.importTask(task);
+        if (importedItem) {
+          pushNewTask(rootTasks, importedItem, path);
+          render();
+          presentMessageAlert('Importar Item', 'Item importado com sucesso.');
+        }
+      }
+    },
+    {
+      text: 'Cancelar'
+    }
+  ];
+
+  document.body.appendChild(actionSheet);
+  return actionSheet.present();
+}
+
+const presentExportImportActionSheet = () => {
+  const actionSheet = document.createElement('ion-action-sheet');
+  actionSheet.header = 'Árvore';
+  actionSheet.buttons = [
+    {
+      icon: 'cloud-upload',
+      text: 'Importar',
+      handler: () => {
+        taskService.importAllTasks();
+        render();
+        presentMessageAlert('Importar Árvore', 'Items importados com sucesso');
+      }
+    },
+    {
+      icon: 'cloud-download',
+      text: 'Exportar',
+      handler: () => {
+        taskService.exportAllTasks();
+        presentMessageAlert('Exportar Árvore', 'Items exportados com sucesso');
+      }
+    },
+    {
+      text: 'Cancelar'
+    }
+  ]
+
+  document.body.appendChild(actionSheet);
+  actionSheet.present();
+};
+
 const divTasks = document.querySelector('#tasks');
 const buttonNewItem = document.querySelector('.new-item');
 const h2RootTitle = document.querySelector('.root-title');
+const buttonExportImportTree = document.querySelector('.export-import-tree');
 
 const NewElement = (tag, options) => {
   const element = document.createElement(tag);
@@ -375,7 +465,7 @@ genelTask = (rootTasks, task, path) => {
       className: 'new-task'
     });
     buttonNewSubitem.children[0].addEventListener('click', () => {
-      presentTaskAlert(rootTasks, null, path);
+      presentNewItemActionSheet(rootTasks, null, path);
     });
 
     element.appendChild(buttonNewSubitem);
@@ -402,12 +492,16 @@ const render = () => {
 
 (async => {
   buttonNewItem.addEventListener('click', () => {
-    presentTaskAlert(taskService.fetchAll());
+    presentNewItemActionSheet(taskService.fetchAll());
   });
 
 
   h2RootTitle.addEventListener('click', () => {
     presentTitleAlert();
+  });
+
+  buttonExportImportTree.addEventListener('click', () => {
+    presentExportImportActionSheet();
   });
 
   render();
