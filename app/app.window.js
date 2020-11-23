@@ -229,6 +229,26 @@ const presentTaskAlert = (rootTasks, task, path) => {
   return alert.present();
 }
 
+const presentAreYouSureToDelete = (rootTasks, path) => {
+  const alert = document.createElement('ion-alert');
+  alert.header = 'Apagar Item';
+  alert.message = 'Tem certeza disso?';
+  alert.buttons = [
+    {
+      text: 'Cancelar'
+    },
+    {
+      text: 'Apagar',
+      handler: () => {
+        deleteTask(rootTasks, path);
+        render();
+      }
+    }
+  ];
+  document.body.appendChild(alert);
+  return alert.present();
+}
+
 const presentOptionsActionSheet = (rootTasks, task, path) => {
   if (!task) {
     return;
@@ -257,9 +277,8 @@ const presentOptionsActionSheet = (rootTasks, task, path) => {
     {
       icon: 'trash',
       text: 'Apagar Item',
-      handler: () => {
-        deleteTask(rootTasks, path);
-        render();
+      handler: async () => {
+        presentAreYouSureToDelete(rootTasks, path);
       }
     },
     {
