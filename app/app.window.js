@@ -109,43 +109,53 @@ const presentMessageAlert = (title, message) => {
 };
 
 const presentTitleAlert = async () => {
-  const title = await titleService.getTitle();
+  const loading = presentLoading();
 
-  const alert = document.createElement('ion-alert');
-  alert.header = 'Editar Titulo';
-  alert.inputs = [
-    {
-      placeholder: 'Título',
-      type: 'text',
-      value: title
-    }
-  ];
-  alert.buttons = [
-    {
-      text: 'Cancelar'
-    },
-    {
-      text: 'Atualizar',
-      handler: inputs => {
-        const newTitle = inputs[0];
-        
-        const loading = presentLoading();
-
-        try {
-          await titleService.setTitle(newTitle);
-          loading.dismiss();
-        } catch (error) {
-          loading.dismiss();
-          console.error(error);
-        }
-        
-        render();
-      }
-    }
-  ];
-  document.body.appendChild(alert);
+  try {
+    const title = await titleService.getTitle();
   
-  return alert.present();
+    const alert = document.createElement('ion-alert');
+    alert.header = 'Editar Titulo';
+    alert.inputs = [
+      {
+        placeholder: 'Título',
+        type: 'text',
+        value: title
+      }
+    ];
+    alert.buttons = [
+      {
+        text: 'Cancelar'
+      },
+      {
+        text: 'Atualizar',
+        handler: async inputs => {
+          const newTitle = inputs[0];
+          
+          const saveLoading = presentLoading();
+
+          try {
+            await titleService.setTitle(newTitle);
+            saveLoading.dismiss();
+          } catch (error) {
+            saveLoading.dismiss();
+            console.error(error);
+          }
+
+          render();
+        }
+      }
+    ];
+    document.body.appendChild(alert);
+    loading.dismiss();
+    return alert.present();
+  
+  } catch (error) {
+    loading.dismiss();
+    console.error(error);
+  }
+
+  return null;
 };
 
 const presentLoading = () => {
