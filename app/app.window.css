@@ -134,12 +134,14 @@ ul li {
 
 .task-title h2 {
   color: #141414;
+  cursor: pointer;
 }
 
 .task-subtitle p {
   margin: 0;
   color: #545454;
   margin-left: 1.75em;
+  cursor: pointer;
 }
 
 .task-subtitle p.checked {
