@@ -1,3 +1,4 @@
 node_modules/
 out/
 app/storage/
+app/environment.js
