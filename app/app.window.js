@@ -1,6 +1,6 @@
-const { taskService } = require('./unlimited');
+const { taskService, titleService } = require('./unlimited');
 
-const pushNewTask = (rootTasks, newTask, path) => {
+const pushNewTask = async (rootTasks, newTask, path) => {
 
   if (path) {
     const indexes = path.split('.');
@@ -34,10 +34,10 @@ const pushNewTask = (rootTasks, newTask, path) => {
     rootTasks.push(newTask);
   }
 
-  taskService.saveTasks(rootTasks);
+  await taskService.saveTasks(rootTasks);
 };
 
-const deleteTask = (rootTasks, path) => {
+const deleteTask = async (rootTasks, path) => {
   const indexes = path.split('.');
 
   let task, currTasks;
@@ -53,7 +53,8 @@ const deleteTask = (rootTasks, path) => {
   });
 
   delete currTasks[indexes[indexes.length - 1]];
-  taskService.saveTasks(rootTasks);
+  
+  await taskService.saveTasks(rootTasks);
 };
 
 const updateCheckedFromTasks = (tasks, checked) => {
@@ -136,6 +137,15 @@ const presentTitleAlert = () => {
   return alert.present();
 };
 
+const presentLoading = () => {
+  const loading = document.createElement('ion-loading');
+  loading.message = 'Carregando...';
+  document.body.appendChild(loading);
+  loading.present();
+
+  return loading;
+}
+
 const textToColor = text => {
   switch (text.toLocaleLowerCase()) {
     case 'vermelho':
@@ -200,7 +210,7 @@ const presentTaskAlert = (rootTasks, task, path) => {
     },
     {
       text: task ? 'Atualizar' : 'Adicionar',
-      handler: inputs => {
+      handler: async inputs => {
         const name = inputs[0];
         const comment = inputs[1];
         let color = inputs[2];
@@ -211,15 +221,24 @@ const presentTaskAlert = (rootTasks, task, path) => {
 
         color = textToColor(color);
         
-        if (task) {
-          task.name = name;
-          task.comment = comment;
-          task.color = color;
-          taskService.saveTasks(rootTasks);
-        } else {
-          pushNewTask(rootTasks, { name, comment, color }, path);
+        const loading = presentLoading();
+
+        try {
+          if (task) {
+            task.name = name;
+            task.comment = comment;
+            task.color = color;
+            await taskService.saveTasks(rootTasks);
+          } else {
+            await pushNewTask(rootTasks, { name, comment, color }, path);
+          }
+
+          loading.dismiss();
+        } catch (error) {
+          loading.dismiss();
+          console.error(error);
         }
-        
+ 
         render();
       }
     }
@@ -239,8 +258,17 @@ const presentAreYouSureToDelete = (rootTasks, path) => {
     },
     {
       text: 'Apagar',
-      handler: () => {
-        deleteTask(rootTasks, path);
+      handler: async () => {
+        const loading = presentLoading();
+
+        try {
+          await deleteTask(rootTasks, path);
+          loading.dismiss();
+        } catch (error) {
+          loading.dismiss();
+          console.error(error);
+        }
+
         render();
       }
     }
@@ -277,7 +305,7 @@ const presentOptionsActionSheet = (rootTasks, task, path) => {
     {
       icon: 'trash',
       text: 'Apagar Item',
-      handler: async () => {
+      handler: () => {
         presentAreYouSureToDelete(rootTasks, path);
       }
     },
@@ -305,12 +333,21 @@ const presentNewItemActionSheet = (rootTasks, task, path) => {
     {
       icon: 'cloud-upload',
       text: 'Importar',
-      handler: () => {
+      handler: async () => {
         const importedItem = taskService.importTask(task);
         if (importedItem) {
-          pushNewTask(rootTasks, importedItem, path);
+          const loading = presentLoading();
+
+          try {
+            await pushNewTask(rootTasks, importedItem, path);
+            loading.dismiss();
+            presentMessageAlert('Importar Item', 'Item importado com sucesso.');
+          } catch (error) {
+            loading.dismiss();
+            console.error(error);
+          }
+
           render();
-          presentMessageAlert('Importar Item', 'Item importado com sucesso.');
         }
       }
     },
@@ -330,18 +367,34 @@ const presentExportImportActionSheet = () => {
     {
       icon: 'cloud-upload',
       text: 'Importar',
-      handler: () => {
-        taskService.importAllTasks();
+      handler: async () => {
+        const loading = presentLoading();
+        try {
+          await taskService.importAllTasks();
+          loading.dismiss();
+          presentMessageAlert('Importar Árvore', 'Items importados com sucesso');
+        } catch (error) {
+          loading.dismiss();
+          console.error(error);
+        }
+
         render();
-        presentMessageAlert('Importar Árvore', 'Items importados com sucesso');
       }
     },
     {
       icon: 'cloud-download',
       text: 'Exportar',
-      handler: () => {
-        taskService.exportAllTasks();
-        presentMessageAlert('Exportar Árvore', 'Items exportados com sucesso');
+      handler: async () => {
+        const loading = presentLoading();
+
+        try {
+          await taskService.exportAllTasks();
+          loading.dismiss();
+          presentMessageAlert('Exportar Árvore', 'Items exportados com sucesso');
+        } catch (error) {
+          loading.dismiss();
+          console.error(error);
+        }
       }
     },
     {
@@ -498,22 +551,56 @@ genelTask = (rootTasks, task, path) => {
   return element;
 };
 
-const render = () => {
+const render = async tasks => {
   divTasks.innerHTML = ``;
-  divTasks.appendChild(genelTasks(taskService.fetchAll()));
   
-  if (!localStorage.getItem('title')) {
-    localStorage.setItem('title', 'Nova Lista');
+  if (!tasks) {
+    const loading = presentLoading();
+    try {
+      tasks = await taskService.fetchAll();
+      loading.dismiss();  
+    } catch (error) {
+      loading.dismiss();
+      console.error(error);
+    }
   }
+  
+  divTasks.appendChild(genelTasks(tasks));
+  
+  const loading = presentLoading();
+  try {
+    const title = await titleService.getTitle();
+    console.log(title);
+    loading.dismiss();
 
-  h2RootTitle.innerHTML = localStorage.getItem('title');
+    if (!title) {
+      const newTitle = 'Nova Lista';
+      const saveLoading = presentLoading();
+      try {
+        await titleService.setTitle(newTitle);
+        saveLoading.dismiss();
+      } catch (error) {
+        saveLoading.dismiss();
+        console.error(error);
+      }
+      h2RootTitle.innerHTML = newTitle;
+    } else {
+      h2RootTitle.innerHTML = title;
+    }
+
+  } catch (error) {
+    loading.dismiss();
+  }
 };
 
-(async => {
-  buttonNewItem.addEventListener('click', () => {
-    presentNewItemActionSheet(taskService.fetchAll());
-  });
+setTimeout(async () => {
+  const loading = presentLoading();
+  const tasks = await taskService.fetchAll();
+  loading.dismiss();
 
+  buttonNewItem.addEventListener('click', () => {
+    presentNewItemActionSheet(tasks);
+  });
 
   h2RootTitle.addEventListener('click', () => {
     presentTitleAlert();
@@ -523,5 +610,5 @@ const render = () => {
     presentExportImportActionSheet();
   });
 
-  render();
-})();
+  render(tasks);
+}, 500);

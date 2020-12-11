@@ -1,17 +1,24 @@
 const { remote } = require('electron');
+const { environment } = require('./environment');
+
 const fs = require('fs');
 
-if (typeof localStorage === "undefined" || localStorage === null) {
-  const LocalStorage = require('node-localstorage').LocalStorage;
-  localStorage = new LocalStorage('./storage');
-}
+const Write = async (key, value) => {
+  const options = {
+    method: 'PUT',
+    body: JSON.stringify(value),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
 
-const Write = (key, value) => {
-  localStorage.setItem(key, JSON.stringify(value));
+  const response = await fetch(`${environment.firebaseRealtimeDatabaseUrl}/${key}.json`, options);
+  return await response.json();
 };
 
-const Read = key => {
-  return JSON.parse(localStorage.getItem(key));
+const Read = async key => {
+  const response = await fetch(`${environment.firebaseRealtimeDatabaseUrl}/${key}.json`);
+  return await response.json();
 }
 
 const OpenDialog = () => {
@@ -42,13 +49,23 @@ const SaveDialog = name => {
     ]
   });
 }
+
+exports.titleService = {
+  getTitle: async () => {
+    return await Read('title');
+  },
+  setTitle: async title => {
+    await Write('title', title);
+  }
+};
   
 exports.taskService = {
-  fetchAll: () => {
-    const tasks = Read('tasks');
+  fetchAll: async () => {
+    const tasks = await Read('tasks');
+
     return tasks ? tasks : [];
   },
-  saveTasks: tasks => {
+  saveTasks: async tasks => {
     // clear null tasks
     const clearNull = items => {
       return items.filter(item => {
@@ -60,7 +77,7 @@ exports.taskService = {
       });
     };
 
-    return Write('tasks', clearNull(tasks));
+    return await Write('tasks', clearNull(tasks));
   },
   exportTask: task => {
     const filename = SaveDialog(task.name);
@@ -80,7 +97,7 @@ exports.taskService = {
 
     return null;
   },
-  exportAllTasks: () => {
+  exportAllTasks: async () => {
     const now = new Date().toISOString()
     .split('-').join('')
     .split('T').join('')
@@ -91,17 +108,18 @@ exports.taskService = {
     const filename = SaveDialog(now);
 
     if (filename) {
-      fs.writeFileSync(filename, JSON.stringify(Read('tasks')));
+      const tasks = await Read('tasks');
+      fs.writeFileSync(filename, JSON.stringify(tasks));
     }
 
     return filename;
   },
-  importAllTasks: () => {
+  importAllTasks: async () => {
     const filename = OpenDialog();
 
     if (filename && filename.length > 0) {
       const tasks = JSON.parse(fs.readFileSync(filename[0], 'utf-8'));
-      Write('tasks', tasks);
+      await Write('tasks', tasks);
     }
 
     return null;
