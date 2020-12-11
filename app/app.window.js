@@ -108,14 +108,16 @@ const presentMessageAlert = (title, message) => {
   }
 };
 
-const presentTitleAlert = () => {
+const presentTitleAlert = async () => {
+  const title = await titleService.getTitle();
+
   const alert = document.createElement('ion-alert');
   alert.header = 'Editar Titulo';
   alert.inputs = [
     {
       placeholder: 'Título',
       type: 'text',
-      value: localStorage.getItem('title')
+      value: title
     }
   ];
   alert.buttons = [
@@ -125,9 +127,18 @@ const presentTitleAlert = () => {
     {
       text: 'Atualizar',
       handler: inputs => {
-        const title = inputs[0];
+        const newTitle = inputs[0];
         
-        localStorage.setItem('title', title);
+        const loading = presentLoading();
+
+        try {
+          await titleService.setTitle(newTitle);
+          loading.dismiss();
+        } catch (error) {
+          loading.dismiss();
+          console.error(error);
+        }
+        
         render();
       }
     }
@@ -472,13 +483,22 @@ genelTask = (rootTasks, task, path) => {
     id: path
   });
 
-  inputChecked.children[0].addEventListener('click', () => {
+  inputChecked.children[0].addEventListener('click', async () => {
     task.checked = !task.checked;
 
     updateCheckedFromTasks(task.childs, task.checked);
     checkParentChecked(rootTasks, path);
 
-    taskService.saveTasks(rootTasks);
+    const loading = presentLoading();
+    
+    try {
+      await taskService.saveTasks(rootTasks);
+      loading.dismiss();  
+    } catch (error) {
+      loading.dismiss();
+      console.error(error);
+    }
+
     render();
   });
 
@@ -499,9 +519,18 @@ genelTask = (rootTasks, task, path) => {
     className: 'expandable'
   });
 
-  buttonExpand.children[0].addEventListener('click', () => {
+  buttonExpand.children[0].addEventListener('click', async () => {
     task.expanded = !task.expanded;
-    taskService.saveTasks(rootTasks, task);
+    
+    const loading = presentLoading();
+    try {
+      await taskService.saveTasks(rootTasks, task);
+      loading.dismiss();  
+    } catch (error) {
+      loading.dismiss();
+      console.error(error);
+    }
+
     render(); 
   });
 
@@ -552,8 +581,6 @@ genelTask = (rootTasks, task, path) => {
 };
 
 const render = async tasks => {
-  divTasks.innerHTML = ``;
-  
   if (!tasks) {
     const loading = presentLoading();
     try {
@@ -565,31 +592,23 @@ const render = async tasks => {
     }
   }
   
+  divTasks.innerHTML = ``;
   divTasks.appendChild(genelTasks(tasks));
   
-  const loading = presentLoading();
-  try {
-    const title = await titleService.getTitle();
-    console.log(title);
-    loading.dismiss();
+  const title = await titleService.getTitle();
+   
+  if (!title) {
+    const newTitle = 'Nova Lista';
 
-    if (!title) {
-      const newTitle = 'Nova Lista';
-      const saveLoading = presentLoading();
-      try {
-        await titleService.setTitle(newTitle);
-        saveLoading.dismiss();
-      } catch (error) {
-        saveLoading.dismiss();
-        console.error(error);
-      }
-      h2RootTitle.innerHTML = newTitle;
-    } else {
-      h2RootTitle.innerHTML = title;
+    try {
+      await titleService.setTitle(newTitle);
+    } catch (error) {
+      console.error(error);
     }
 
-  } catch (error) {
-    loading.dismiss();
+    h2RootTitle.innerHTML = newTitle;
+  } else {
+    h2RootTitle.innerHTML = title;
   }
 };
 
